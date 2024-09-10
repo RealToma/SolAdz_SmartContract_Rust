@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-soladz = "5LonPY5Qzt8c9qaSLtJhF5hxvgyPveKNs4eUgrYbuAjh"
+soladz = "2j9DGuVfCnVWwgHkhqerYwjym7SXTF7J96npgKd7We8i"
 
 [registry]
 url = "https://api.apr.dev"

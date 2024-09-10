@@ -8,4 +8,10 @@ pub enum ErrorCode {
     InsufficientBalance,
     #[msg("Can not reach new cycle")]
     CantReachNewCycle,
+    #[msg("Reached max level")]
+    ReachedMaxLevel,
+    #[msg("Invalid fee Account")]
+    InvalidFeeAccount,
+    #[msg("Overflow of max admins")]
+    OverflowMaxAdmin
 }

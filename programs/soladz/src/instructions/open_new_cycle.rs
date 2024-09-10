@@ -20,6 +20,11 @@ pub fn open_new_cycle_handler(ctx: Context<OpenNewCycle>) -> Result<()> {
   if percentage < 300 {
     return err!(ErrorCode::CantReachNewCycle);
   }
-  ctx.accounts.investor_account.current_cycle += 1;
+  if ctx.accounts.investor_account.current_cycle == 8 {
+    return err!(ErrorCode::ReachedMaxLevel);
+  }
+  let investor_account: &mut Box<Account<'_, Investor>> = &mut ctx.accounts.investor_account;
+  investor_account.current_cycle += 1;
+  investor_account.amount *= 2;
   Ok(())
 }
