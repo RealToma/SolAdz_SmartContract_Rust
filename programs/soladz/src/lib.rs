@@ -23,6 +23,10 @@ pub mod soladz {
         invest_handler(ctx, lamports)
     }
 
+    pub fn owner_withdraw (ctx: Context<OwnerWithdraw>) -> Result<()> {
+        owner_withdraw_handler(ctx)
+    }
+
     pub fn reward_view (ctx: Context<RewardView>) -> Result<u64> {
         reward_view_handler(ctx)
     }

@@ -1,5 +1,6 @@
 pub mod initialize;
 pub mod invest;
+pub mod owner_withdraw;
 pub mod reward_view;
 pub mod claim;
 pub mod investor_withdraw;
@@ -10,6 +11,7 @@ pub mod transfer_ownership;
 
 pub use initialize::*;
 pub use invest::*;
+pub use owner_withdraw::*;
 pub use reward_view::*;
 pub use claim::*;
 pub use investor_withdraw::*;
