@@ -1,4 +1,4 @@
-use anchor_lang::{ prelude::*, system_program::{ transfer, Transfer } };
+use anchor_lang::{ prelude::*, solana_program::native_token::sol_to_lamports, system_program::{ transfer, Transfer } };
 
 use std::mem::size_of;
 use crate::{
@@ -73,7 +73,11 @@ pub fn init_investor_with_ref(ctx: Context<InitInvestorWithRef>, lamports: u64) 
     if ctx.accounts.investor.lamports() < lamports {
         return err!(ErrorCode::InsufficientBalance);
     }
+    if lamports < sol_to_lamports(0.1) || lamports > sol_to_lamports(100_f64){
+        return err!(ErrorCode::InvalidAmount);
+    }
     let admin_fee: u64 = (lamports * 5) / 100; // 5% admin fee
+    
     transfer(ctx.accounts.transfer_context(), lamports - admin_fee)?;
     transfer(ctx.accounts.transfer_fee_context(), admin_fee)?;
     let investor_account: &mut Box<Account<'_, Investor>> = &mut ctx.accounts.investor_account;
@@ -84,11 +88,11 @@ pub fn init_investor_with_ref(ctx: Context<InitInvestorWithRef>, lamports: u64) 
 
     investor_account.last_update = Clock::get().unwrap().unix_timestamp;
     let app_stats: &mut Box<Account<'_, AppStats>> = &mut ctx.accounts.app_stats;
-    app_stats.total_deposits += lamports;
+    app_stats.total_deposits = app_stats.total_deposits.checked_add(lamports).unwrap();
     let top_sponsor_fee: u64 = (lamports * 5) / 100; // 5% to top sponsor pool
     let whale_fee: u64 = (lamports * 25) / 1000; // 2.5% to whale pool
-    app_stats.top_sponser_pool += top_sponsor_fee;
-    app_stats.whale_pool += whale_fee;
+    app_stats.top_sponser_pool = app_stats.top_sponser_pool.checked_add(top_sponsor_fee).unwrap();
+    app_stats.whale_pool = app_stats.whale_pool.checked_add(whale_fee).unwrap();
     ctx.accounts.referrer_account.referred_count += 1;
     ctx.accounts.referrer_account.referred_amount += lamports - admin_fee;
     Ok(())
