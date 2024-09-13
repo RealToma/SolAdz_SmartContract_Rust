@@ -51,6 +51,10 @@ pub fn claim_handler(ctx: Context<Claim>) -> Result<()> {
     }
     transfer(ctx.accounts.transfer_context().with_signer(signer_seeds), lamports)?;
     let investor_account: &mut Box<Account<'_, Investor>> = &mut ctx.accounts.investor_account;
+    if investor_account.get_reward_percentage() == 300 && investor_account.current_cycle == 8 {
+      investor_account.amount = 0;
+      investor_account.current_cycle = 1;
+    }
     investor_account.total_earned += lamports;
     investor_account.last_update = Clock::get().unwrap().unix_timestamp;
     ctx.accounts.app_stats.total_withdraw += lamports;

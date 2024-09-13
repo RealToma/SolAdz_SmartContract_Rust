@@ -9,7 +9,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("Bk8UyhwyA1WwbWzKtrb3cZV4rbfQuutwhXTAPWTPxHSU");
+declare_id!("q6j5TYe3pBcTZANEr1pfAGNhkh9sBvBiCQZi8zrP8Fm");
 
 #[program]
 pub mod soladz {

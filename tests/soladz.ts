@@ -17,7 +17,7 @@ describe("soladz", () => {
 
   it ("ownership", async () => {
     const tx = await program.methods.transferOwnership().accounts({
-      newOwner: new PublicKey('Gaj7cGbQ3CCWkqn8QsnLXEVaBaTN98GRxkX1pPsC4yNS')
+      newOwner: new PublicKey('q6j5TYe3pBcTZANEr1pfAGNhkh9sBvBiCQZi8zrP8Fm')
     }).rpc();
     console.log(tx)
   })
