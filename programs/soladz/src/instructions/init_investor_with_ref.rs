@@ -2,7 +2,7 @@ use anchor_lang::{ prelude::*, solana_program::native_token::sol_to_lamports, sy
 
 use std::mem::size_of;
 use crate::{
-    error::ErrorCode, AppStats, Investor, ADMIN, APP_STATS_SEED, INVESTOR_SEED, VAULT_SEED
+    error::ErrorCode, AppStats, Investor, ADMIN, APP_STATS_SEED, INVESTOR_SEED, VAULT_SEED, WHALE_POOL_SEED
 };
 
 #[derive(Accounts)]
@@ -37,6 +37,13 @@ pub struct InitInvestorWithRef<'info> {
 
     #[account(
         mut,
+        seeds = [WHALE_POOL_SEED],
+        bump
+      )]
+    pub whale_pool: SystemAccount<'info>,
+
+    #[account(
+        mut,
         address = ADMIN
       )]
     pub fee_account: SystemAccount<'info>,
@@ -67,18 +74,27 @@ impl<'info> InitInvestorWithRef<'info> {
         };
         CpiContext::new(self.system_program.to_account_info(), cpi_accounts)
     }
+
+    fn transfer_whale_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
+        let cpi_accounts: Transfer = Transfer {
+            from: self.investor.to_account_info().clone(),
+            to: self.whale_pool.to_account_info().clone(),
+        };
+        CpiContext::new(self.system_program.to_account_info(), cpi_accounts)
+    }
 }
 
-pub fn init_investor_with_ref(ctx: Context<InitInvestorWithRef>, lamports: u64) -> Result<()> {
+pub fn init_investor_with_ref_handler(ctx: Context<InitInvestorWithRef>, lamports: u64) -> Result<()> {
     if ctx.accounts.investor.lamports() < lamports {
         return err!(ErrorCode::InsufficientBalance);
     }
-    if lamports < sol_to_lamports(0.1) || lamports > sol_to_lamports(100_f64){
+    if lamports < sol_to_lamports(0.1) || lamports > sol_to_lamports(1000_f64){
         return err!(ErrorCode::InvalidAmount);
     }
     let admin_fee: u64 = (lamports * 5) / 100; // 5% admin fee
-    
-    transfer(ctx.accounts.transfer_context(), lamports - admin_fee)?;
+    let whale_fee: u64 = (lamports * 25) / 1000; // 2.5% to whale pool
+    transfer(ctx.accounts.transfer_context(), lamports - admin_fee - whale_fee)?;
+    transfer(ctx.accounts.transfer_whale_context(), whale_fee)?;
     transfer(ctx.accounts.transfer_fee_context(), admin_fee)?;
     let investor_account: &mut Box<Account<'_, Investor>> = &mut ctx.accounts.investor_account;
     investor_account.investor = ctx.accounts.investor.key();
@@ -90,7 +106,6 @@ pub fn init_investor_with_ref(ctx: Context<InitInvestorWithRef>, lamports: u64) 
     let app_stats: &mut Box<Account<'_, AppStats>> = &mut ctx.accounts.app_stats;
     app_stats.total_deposits = app_stats.total_deposits.checked_add(lamports).unwrap();
     let top_sponsor_fee: u64 = (lamports * 5) / 100; // 5% to top sponsor pool
-    let whale_fee: u64 = (lamports * 25) / 1000; // 2.5% to whale pool
     app_stats.top_sponser_pool = app_stats.top_sponser_pool.checked_add(top_sponsor_fee).unwrap();
     app_stats.whale_pool = app_stats.whale_pool.checked_add(whale_fee).unwrap();
     ctx.accounts.referrer_account.referred_count += 1;

@@ -9,7 +9,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("2j9DGuVfCnVWwgHkhqerYwjym7SXTF7J96npgKd7We8i");
+declare_id!("Bk8UyhwyA1WwbWzKtrb3cZV4rbfQuutwhXTAPWTPxHSU");
 
 #[program]
 pub mod soladz {
@@ -52,5 +52,21 @@ pub mod soladz {
 
     pub fn transfer_ownership (ctx: Context<TransferOwnership>) -> Result<()> {
         transfer_ownership_handler(ctx)
+    }
+
+    pub fn init_investor_with_ref(ctx: Context<InitInvestorWithRef>, lamports: u64) -> Result<()> {
+        init_investor_with_ref_handler(ctx, lamports)
+    }
+
+    pub fn matching_bonus_view (ctx: Context<MatchingBonusView>) -> Result<u64> {
+        matching_bonus_view_handler(ctx)
+    }
+
+    pub fn run_distribution (ctx: Context<RunDistribution>, lamports: u64) -> Result<()> {
+        run_distribution_handler(ctx, lamports)
+    }
+
+    pub fn claim_whale (ctx: Context<ClaimWhale>) -> Result<()> {
+        claim_whale_handler(ctx)
     }
 }

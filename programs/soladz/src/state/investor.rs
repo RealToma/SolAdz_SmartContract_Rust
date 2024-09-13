@@ -10,12 +10,14 @@ pub struct Investor {
   pub cycle_completed: bool,
   pub referred_count: u16,
   pub referred_amount: u64,
+  pub last_update_commission: i64,
+  pub last_update_whale: i64,
 }
 
 impl Investor {
   pub fn calculate_reward(&self) -> u64 {
-    let now: i64 = Clock::get().unwrap().unix_timestamp;
-    let reward: u64 = self.amount * (now - self.last_update) as u64 / 86400_u64 / 100_u64;
+    let percentage: u64 = self.get_reward_percentage();
+    let reward: u64 = self.amount * percentage;
     return reward;
   }
 

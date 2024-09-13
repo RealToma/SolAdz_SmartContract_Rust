@@ -1,19 +1,17 @@
 use anchor_lang::{ prelude::*, system_program::{ transfer, Transfer } };
 
-use crate::{ AppStats, Investor, APP_STATS_SEED, INVESTOR_SEED, SEVER_SIGNER, VAULT_SEED };
+use crate::{ AppStats, Investor, APP_STATS_SEED, INVESTOR_SEED, PERIOD, SEVER_SIGNER, VAULT_SEED, error::ErrorCode };
 
 #[derive(Accounts)]
 pub struct ClaimDirectCommision<'info> {
     #[account(mut)]
     pub investor: Signer<'info>,
 
-    #[account(
-      address = SEVER_SIGNER
-    )]
+    #[account(address = SEVER_SIGNER)]
     pub server_signer: Signer<'info>,
 
     #[account(
-    mut,
+      mut,
       seeds = [INVESTOR_SEED, investor.key().as_ref()],
       bump
     )]
@@ -50,10 +48,15 @@ pub fn claim_direct_commision_handler(
     ctx: Context<ClaimDirectCommision>,
     lamports: u64
 ) -> Result<()> {
+  let now: i64 = Clock::get().unwrap().unix_timestamp;
+    if now - ctx.accounts.investor_account.last_update_commission < PERIOD {
+      return err!(ErrorCode::InvalidTime);
+    }
     let bump: &[u8; 1] = &[ctx.bumps.vault];
     let seeds: &[&[u8]] = &[VAULT_SEED, bump];
     let signer_seeds: &[&[&[u8]]; 1] = &[&seeds[..]];
     transfer(ctx.accounts.transfer_context().with_signer(signer_seeds), lamports)?;
     ctx.accounts.app_stats.total_withdraw += lamports;
+    ctx.accounts.investor_account.last_update_commission = now;
     Ok(())
 }
