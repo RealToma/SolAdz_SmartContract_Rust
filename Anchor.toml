@@ -4,14 +4,14 @@
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-soladz = "q6j5TYe3pBcTZANEr1pfAGNhkh9sBvBiCQZi8zrP8Fm"
+[programs.mainnet]
+soladz = "DLTNDktGdPk1ZAUxDGCSwwdRSuvbvD5V6sF3ow27QURx"
 
 [registry]
-url = "https://api.apr.dev"
+url = "https://mainnet.helius-rpc.com/?api-key=af96dbd7-552e-4f4b-8b34-e607f792a78c"
 
 [provider]
-cluster = "devnet"
+cluster = "mainnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
